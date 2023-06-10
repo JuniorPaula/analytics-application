@@ -15,12 +15,13 @@ type Route struct {
 // BootstrapRoutes is a function that receives a mux.Router and returns a mux.Router
 // with all the routes of the application
 func BootstrapRoutes(router *mux.Router) *mux.Router {
-	routes := homeRoutes
-	// routes = append(routes, authRoutes...)
+	routes := reportsRoutes
+	routes = append(routes, homeRoutes)
 
-	router.HandleFunc(routes.URI, routes.Func).Methods(routes.Method)
-	// for _, route := range routes {
-	// }
+	for _, route := range routes {
+		router.HandleFunc(route.URI, route.Func).Methods(route.Method)
+
+	}
 
 	return router
 }
