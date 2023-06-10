@@ -2,6 +2,8 @@ package usecases
 
 import (
 	"c2d-reports/internal/services"
+	"fmt"
+	"sync"
 )
 
 type ReportTmrUsecase struct {
@@ -9,6 +11,8 @@ type ReportTmrUsecase struct {
 }
 
 func (u *ReportTmrUsecase) LoadTMR() {
+	// difine wait group
+	var wg sync.WaitGroup
 
 	// calls chat2desk api
 	chat2deskService := services.Chat2DeskService{
@@ -16,8 +20,22 @@ func (u *ReportTmrUsecase) LoadTMR() {
 	}
 	operators := chat2deskService.GetOperators()
 
-	for _, o := range operators {
+	var dialogs []services.Dialog
+	dialogLock := sync.Mutex{}
 
-		chat2deskService.GetAllDialogsOpenByOperatorID(o.ID)
+	for _, o := range operators {
+		wg.Add(1)
+		go func(operatorID int) {
+			defer wg.Done()
+			d := chat2deskService.GetAllDialogsOpenByOperatorID(operatorID)
+
+			// lock dialogs
+			dialogLock.Lock()
+			dialogs = append(dialogs, d...)
+			dialogLock.Unlock()
+		}(o.ID)
 	}
+
+	wg.Wait()
+	fmt.Println(dialogs)
 }

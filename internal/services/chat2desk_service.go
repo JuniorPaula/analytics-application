@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"time"
 )
 
 var url = "https://api.chat24.io/v1"
@@ -117,7 +118,21 @@ func (s *Chat2DeskService) GetAllDialogsOpenByOperatorID(operatorID int) []Dialo
 			break
 		}
 	}
+	filteredDialogs := verifyDatetimeDialogIsToday(dialogs)
 
-	fmt.Println(dialogs)
-	return dialogs
+	return filteredDialogs
+}
+
+func verifyDatetimeDialogIsToday(dialogs []Dialog) []Dialog {
+	today := time.Now().Format("2006-01-02")
+
+	filteredDialogs := []Dialog{}
+	for _, dialog := range dialogs {
+		dialogIsToday := dialog.LastMessage.Created[0:10]
+		if dialogIsToday == today {
+			filteredDialogs = append(filteredDialogs, dialog)
+		}
+	}
+
+	return filteredDialogs
 }
