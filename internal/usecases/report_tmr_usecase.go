@@ -2,7 +2,6 @@ package usecases
 
 import (
 	"c2d-reports/internal/services"
-	"fmt"
 )
 
 type ReportTmrUsecase struct {
@@ -17,5 +16,8 @@ func (u *ReportTmrUsecase) LoadTMR() {
 	}
 	operators := chat2deskService.GetOperators()
 
-	fmt.Println(operators)
+	for _, o := range operators {
+
+		chat2deskService.GetAllDialogsOpenByOperatorID(o.ID)
+	}
 }
