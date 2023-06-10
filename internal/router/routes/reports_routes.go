@@ -9,6 +9,6 @@ var reportsRoutes = []Route{
 	{
 		URI:    "/tmr/load",
 		Method: http.MethodGet,
-		Func:   handlers.LoadTMR,
+		Func:   handlers.LoadTMR_handler,
 	},
 }

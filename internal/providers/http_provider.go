@@ -30,12 +30,13 @@ func VerifyStatusCodeErrors(w http.ResponseWriter, r *http.Response) {
 	WriteJSON(w, r.StatusCode, err)
 }
 
-func MakeRquest(r *http.Request, method, url string, data io.Reader) (*http.Response, error) {
+func MakeRquest(method, url, token string, data io.Reader) (*http.Response, error) {
 	request, err := http.NewRequest(method, url, data)
 	if err != nil {
 		return nil, err
 	}
 
+	request.Header.Add("Authorization", token)
 	client := &http.Client{}
 	response, err := client.Do(request)
 	if err != nil {
