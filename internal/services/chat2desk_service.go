@@ -144,6 +144,37 @@ func (s *Chat2DeskService) GetDialogsByOperator(operatorID int) []Dialog {
 	return dialog.Data
 }
 
+type ResponseMessages struct {
+	Data []Message `json:"data"`
+}
+
+type Message struct {
+	ID         int    `json:"id"`
+	Type       string `json:"type"`
+	Created    string `json:"created"`
+	DialogID   int    `json:"dialog_id"`
+	OperatorID int    `json:"operator"`
+	ClientID   int    `json:"client_id"`
+}
+
+// GetMessageByDialogID returns all messages from dialog id
+func (s *Chat2DeskService) GetMessageByDialogID(dialogID int) []Message {
+	path := fmt.Sprintf("%s/messages?dialog_id=%s&limit=200&order=desc", url, strconv.Itoa(dialogID))
+	resp, err := providers.MakeRquest(http.MethodGet, path, s.Token, nil)
+	if err != nil {
+		os.Exit(1)
+	}
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var messages ResponseMessages
+	json.Unmarshal(data, &messages)
+	filteredMessage := verifyDatetimeMessagesIsToday(messages.Data)
+	return filteredMessage
+}
+
 // verifyDatetimeDialogIsToday filters dialogs that are not from today
 func verifyDatetimeDialogIsToday(dialogs []Dialog) []Dialog {
 	today := time.Now().Format("2006-01-02")
@@ -157,4 +188,19 @@ func verifyDatetimeDialogIsToday(dialogs []Dialog) []Dialog {
 	}
 
 	return filteredDialogs
+}
+
+// verifyDatetimeMessagesIsToday filters messages that are not from today
+func verifyDatetimeMessagesIsToday(messages []Message) []Message {
+	today := time.Now().Format("2006-01-02")
+
+	filteredMessage := []Message{}
+	for _, m := range messages {
+		messageIsToday := m.Created[0:10]
+		if messageIsToday == today {
+			filteredMessage = append(filteredMessage, m)
+		}
+	}
+
+	return filteredMessage
 }
