@@ -153,7 +153,7 @@ type Message struct {
 	Type       string `json:"type"`
 	Created    string `json:"created"`
 	DialogID   int    `json:"dialog_id"`
-	OperatorID int    `json:"operator"`
+	OperatorID int    `json:"operator_id"`
 	ClientID   int    `json:"client_id"`
 }
 
@@ -173,6 +173,36 @@ func (s *Chat2DeskService) GetMessageByDialogID(dialogID int) []Message {
 	json.Unmarshal(data, &messages)
 	filteredMessage := verifyDatetimeMessagesIsToday(messages.Data)
 	return filteredMessage
+}
+
+type ResposeClients struct {
+	Data Client `json:"data"`
+}
+
+type Client struct {
+	ID           int                      `json:"id"`
+	Name         string                   `json:"name"`
+	AssignedName string                   `json:"assigned_name"`
+	Phone        string                   `json:"phone"`
+	Tags         []struct{ Label string } `json:"tags"`
+}
+
+// GetClientByID returns client by id
+func (s *Chat2DeskService) GetClientByID(clientID int) Client {
+	path := fmt.Sprintf("%s/clients/%s", url, strconv.Itoa(clientID))
+	resp, err := providers.MakeRquest(http.MethodGet, path, s.Token, nil)
+	if err != nil {
+		os.Exit(1)
+	}
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var client ResposeClients
+	json.Unmarshal(data, &client)
+
+	return client.Data
 }
 
 // verifyDatetimeDialogIsToday filters dialogs that are not from today

@@ -74,35 +74,48 @@ func (u *ReportTmrUsecase) MessageMapperHanlder(dialogs []services.Dialog, opera
 	for _, d := range dialogs {
 		messages := chat2deskService.GetMessageByDialogID(d.ID)
 
-		for _, m := range messages {
+		message := find(messages, func(msg services.Message) bool {
+			return msg.Type == "to_client" || msg.Type == "from_client"
+		})
 
-			message := func(m services.Message) *services.Message {
-				if m.Type == "to_client" || m.Type == "from_client" {
-					return &m
-				}
-				return nil
-			}(m)
+		if message == nil {
+			continue
+		}
 
-			if message == nil {
+		var timerTMR int
+
+		if message.Type == "from_client" {
+			tmr, err := getTMR(message.Created)
+			if err != nil {
+				fmt.Println(err)
 				continue
 			}
-
-			var timerTMR int
-
-			if message.Type == "from_client" {
-				tmr, err := getTMR(message.Created)
-				if err != nil {
-					fmt.Println(err)
-					continue
-				}
-				timerTMR = tmr
-			} else {
-				timerTMR = 0
-			}
-
-			fmt.Println("dialog: ", message.DialogID)
-			fmt.Println("tmr: ", timerTMR)
+			timerTMR = tmr
+		} else {
+			timerTMR = 0
 		}
+
+		client := chat2deskService.GetClientByID(message.ClientID)
+		var statusTag string
+		if len(client.Tags) > 0 {
+			statusTag = client.Tags[0].Label
+		} else {
+			statusTag = "Sem tag"
+		}
+
+		for _, o := range operators {
+			if o.OperatorID == message.OperatorID {
+				fmt.Println("dialog id: ", d.ID)
+				fmt.Println("operator id: ", o.OperatorID)
+				fmt.Println("operator: ", o.OperatorName)
+				fmt.Println("tmr: ", timerTMR)
+				fmt.Println("qtd dialogs: ", o.QtdDialogs)
+				fmt.Println("client phone: ", client.Phone)
+				fmt.Println("status: ", statusTag)
+				fmt.Println("------------------")
+			}
+		}
+
 	}
 }
 
@@ -118,4 +131,13 @@ func getTMR(created string) (int, error) {
 	timerTMR := todayTime.Sub(createParseTime).Seconds()
 
 	return int(timerTMR), nil
+}
+
+func find(message []services.Message, predicate func(services.Message) bool) *services.Message {
+	for _, m := range message {
+		if predicate(m) {
+			return &m
+		}
+	}
+	return nil
 }
