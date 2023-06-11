@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"c2d-reports/internal/services"
+	"encoding/json"
 	"fmt"
 	"sync"
 	"time"
@@ -15,6 +16,16 @@ type OperatorDialogData struct {
 	OperatorID   int
 	OperatorName string
 	QtdDialogs   int
+}
+
+type DialogInfo struct {
+	DialogID     int    `json:"dialog_id"`
+	OperatorID   int    `json:"operator_id"`
+	OperatorName string `json:"operator_name"`
+	TmrInSeconds int    `json:"tmr_in_seconds"`
+	QtdDialogs   int    `json:"qtd_dialogs"`
+	ClientPhone  string `json:"client_phone"`
+	Status       string `json:"status"`
 }
 
 func (u *ReportTmrUsecase) LoadTMR() {
@@ -66,77 +77,81 @@ func (u *ReportTmrUsecase) LoadTMR() {
 }
 
 func (u *ReportTmrUsecase) MessageMapperHanlder(dialogs []services.Dialog, operators []OperatorDialogData) {
+	// define wait group
+	var wg sync.WaitGroup
+
 	// calls chat2desk api
 	chat2deskService := services.Chat2DeskService{
 		Token: u.CompanyToken,
 	}
 
+	var dialogInfo DialogInfo
+
 	for _, d := range dialogs {
-		messages := chat2deskService.GetMessageByDialogID(d.ID)
+		wg.Add(1)
+		go func(dialog services.Dialog) {
+			defer wg.Done()
+			messages := chat2deskService.GetMessageByDialogID(dialog.ID)
 
-		message := find(messages, func(msg services.Message) bool {
-			return msg.Type == "to_client" || msg.Type == "from_client"
-		})
-
-		if message == nil {
-			continue
-		}
-
-		var timerTMR int
-
-		if message.Type == "from_client" {
-			tmr, err := getTMR(message.Created)
-			if err != nil {
-				fmt.Println(err)
-				continue
+			message := findMessageByType(messages, "from_client", "from_operator")
+			if message == nil {
+				return
 			}
-			timerTMR = tmr
-		} else {
-			timerTMR = 0
-		}
 
-		client := chat2deskService.GetClientByID(message.ClientID)
-		var statusTag string
-		if len(client.Tags) > 0 {
-			statusTag = client.Tags[0].Label
-		} else {
-			statusTag = "Sem tag"
-		}
-
-		for _, o := range operators {
-			if o.OperatorID == message.OperatorID {
-				fmt.Println("dialog id: ", d.ID)
-				fmt.Println("operator id: ", o.OperatorID)
-				fmt.Println("operator: ", o.OperatorName)
-				fmt.Println("tmr: ", timerTMR)
-				fmt.Println("qtd dialogs: ", o.QtdDialogs)
-				fmt.Println("client phone: ", client.Phone)
-				fmt.Println("status: ", statusTag)
-				fmt.Println("------------------")
+			timerTMR := 0
+			if message.Type == "from_client" {
+				tmr := getTMR(message.Created)
+				timerTMR = tmr
 			}
-		}
+
+			client := chat2deskService.GetClientByID(message.ClientID)
+			statusTag := "Sem tag"
+			if len(client.Tags) > 0 {
+				statusTag = client.Tags[0].Label
+			}
+
+			for _, o := range operators {
+				if o.OperatorID == message.OperatorID {
+					dialogInfo = DialogInfo{
+						DialogID:     dialog.ID,
+						OperatorID:   o.OperatorID,
+						OperatorName: o.OperatorName,
+						TmrInSeconds: timerTMR,
+						QtdDialogs:   o.QtdDialogs,
+						ClientPhone:  client.Phone,
+						Status:       statusTag,
+					}
+
+					jsonData, err := json.Marshal(dialogInfo)
+					if err != nil {
+						fmt.Println("Error while convert to json:", err)
+						return
+					}
+					fmt.Println("json data: ", string(jsonData))
+				}
+			}
+		}(d)
 
 	}
+
+	// wait for all goroutines to finish
+	wg.Wait()
+
 }
 
-func getTMR(created string) (int, error) {
-	createdSplitTime := created[0:10]
-	createParseTime, err := time.Parse("2006-01-02", createdSplitTime)
-	if err != nil {
-		return 0, err
-	}
-
-	todayTime := time.Now().UTC()
-
-	timerTMR := todayTime.Sub(createParseTime).Seconds()
-
-	return int(timerTMR), nil
+func getTMR(created string) int {
+	createParseTime, _ := time.Parse("2006-01-02T15:04:05 MST", created)
+	todayTime := time.Now()
+	timerTMR := int(todayTime.Sub(createParseTime).Seconds())
+	return timerTMR
 }
 
-func find(message []services.Message, predicate func(services.Message) bool) *services.Message {
-	for _, m := range message {
-		if predicate(m) {
-			return &m
+func findMessageByType(messages []services.Message, types ...string) *services.Message {
+	for _, message := range messages {
+		for _, t := range types {
+			if message.Type == t {
+				return &message
+			}
 		}
 	}
 	return nil
