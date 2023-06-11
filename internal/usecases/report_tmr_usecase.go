@@ -23,9 +23,17 @@ func (u *ReportTmrUsecase) LoadTMR() {
 	var dialogs []services.Dialog
 	dialogLock := sync.Mutex{}
 
-	for _, o := range operators {
-		wg.Add(1)
-		go func(operatorID int) {
+	operatorDialogData := make([]struct {
+		OperatorID   int
+		OperatorName string
+		QtdDialogs   int
+	}, len(operators))
+
+	opDialogLock := sync.Mutex{}
+
+	for i, o := range operators {
+		wg.Add(2)
+		go func(operatorID, index int) {
 			defer wg.Done()
 			d := chat2deskService.GetAllDialogsOpenByOperatorID(operatorID)
 
@@ -33,9 +41,25 @@ func (u *ReportTmrUsecase) LoadTMR() {
 			dialogLock.Lock()
 			dialogs = append(dialogs, d...)
 			dialogLock.Unlock()
-		}(o.ID)
+		}(o.ID, i)
+
+		go func(operatorID int, operatorName string, index int) {
+			defer wg.Done()
+			d := chat2deskService.GetDialogsByOperator(operatorID)
+
+			// lock the access to operatorDialogData
+			opDialogLock.Lock()
+			operatorDialogData[index].OperatorID = operatorID
+			operatorDialogData[index].OperatorName = operatorName
+			operatorDialogData[index].QtdDialogs = len(d)
+			opDialogLock.Unlock()
+		}(o.ID, o.FirstName, i)
 	}
 
+	// wait for all goroutines to finish
 	wg.Wait()
+
+	fmt.Println(operatorDialogData)
+	fmt.Println("------------------")
 	fmt.Println(dialogs)
 }

@@ -31,6 +31,7 @@ type Operator struct {
 	LastName  string `json:"last_name"`
 }
 
+// GetOperators returns all operators from company
 func (s *Chat2DeskService) GetOperators() []Operator {
 	path := fmt.Sprintf("%s/operators?limit=200", url)
 	resp, err := providers.MakeRquest(http.MethodGet, path, s.Token, nil)
@@ -52,6 +53,7 @@ func (s *Chat2DeskService) GetOperators() []Operator {
 	return validOperators
 }
 
+// formatOperators filters operators that are deleted or disabled
 func formatOperators(op ResponseOperators) []Operator {
 	var operators []Operator
 	for i := 0; i < len(op.Data); i++ {
@@ -89,6 +91,7 @@ type LastMessage struct {
 	ClientID int    `json:"client_id"`
 }
 
+// GetAllDialogsOpenByOperatorID returns all dialogs open by operator id
 func (s *Chat2DeskService) GetAllDialogsOpenByOperatorID(operatorID int) []Dialog {
 	var offser int
 	var index int
@@ -123,6 +126,25 @@ func (s *Chat2DeskService) GetAllDialogsOpenByOperatorID(operatorID int) []Dialo
 	return filteredDialogs
 }
 
+// GetDialogsByOperator returns all dialogs opened by operator id
+func (s *Chat2DeskService) GetDialogsByOperator(operatorID int) []Dialog {
+	queryString := "state=open&limit=200&order=desc"
+	path := fmt.Sprintf("%s/dialogs?operator_id=%s&%s", url, strconv.Itoa(operatorID), queryString)
+	resp, err := providers.MakeRquest(http.MethodGet, path, s.Token, nil)
+	if err != nil {
+		os.Exit(1)
+	}
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var dialog ResponseDialogs
+	json.Unmarshal(data, &dialog)
+	return dialog.Data
+}
+
+// verifyDatetimeDialogIsToday filters dialogs that are not from today
 func verifyDatetimeDialogIsToday(dialogs []Dialog) []Dialog {
 	today := time.Now().Format("2006-01-02")
 
