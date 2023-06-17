@@ -2,8 +2,8 @@ package usecases
 
 import (
 	"c2d-reports/internal/services"
-	"encoding/json"
 	"fmt"
+	"sort"
 	"sync"
 	"time"
 )
@@ -68,14 +68,41 @@ func (u *ReportTmrUsecase) CalculateDialogsHanlder(dialogs []services.Dialog) {
 
 	for _, d := range dialogs {
 		requests := chat2deskService.GetDialogsByRequestID(d.LastMessage.RequestID)
-		r, _ := json.Marshal(requests)
-		fmt.Println(string(r))
+
+		sort.Sort(sortByCreated(requests))
+
+		messageFromClient := findMessageIN(requests)
+
+		var tmrInSeconds int
+		if messageFromClient != nil {
+			tmrInSeconds = getTMR(messageFromClient.Created)
+		} else {
+			tmrInSeconds = 0
+		}
+
+		fmt.Println("DialogID: ", d.ID, " - TMR: ", tmrInSeconds)
+
 	}
 }
 
-func getTMR(created string) int {
-	createParseTime, _ := time.Parse("2006-01-02T15:04:05 MST", created)
+func findMessageIN(requests []services.ResponseRequests) *services.ResponseRequests {
+	for _, r := range requests {
+		if r.Type == "in" {
+			return &requests[0]
+		}
+	}
+	return nil
+}
+
+type sortByCreated []services.ResponseRequests
+
+func (r sortByCreated) Len() int           { return len(r) }
+func (r sortByCreated) Less(i, j int) bool { return r[i].Created < r[j].Created }
+func (r sortByCreated) Swap(i, j int)      { r[i], r[j] = r[j], r[i] }
+
+func getTMR(created int) int {
+	createdParseTime := time.Unix(int64(created), 0)
 	todayTime := time.Now()
-	timerTMR := int(todayTime.Sub(createParseTime).Seconds())
+	timerTMR := int(todayTime.Sub(createdParseTime).Seconds())
 	return timerTMR
 }

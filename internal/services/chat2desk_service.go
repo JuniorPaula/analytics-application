@@ -131,7 +131,7 @@ type ResponseRequests struct {
 	RequestID  int    `json:"id"`
 	Text       string `json:"text"`
 	Type       string `json:"type"`
-	Created    string `json:"created"`
+	Created    int    `json:"created"`
 	ClientID   int    `json:"clientID"`
 	OperatorID int    `json:"operatorID"`
 	ChannelID  int    `json:"channelID"`
