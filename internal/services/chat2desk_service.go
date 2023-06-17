@@ -23,12 +23,13 @@ type ResponseOperators struct {
 }
 
 type Operator struct {
-	ID        int    `json:"id"`
-	Email     string `json:"email"`
-	Role      string `json:"role"`
-	Online    int    `json:"online"`
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
+	ID            int    `json:"id"`
+	Email         string `json:"email"`
+	Role          string `json:"role"`
+	Online        int    `json:"online"`
+	FirstName     string `json:"first_name"`
+	LastName      string `json:"last_name"`
+	OpenedDialogs int    `json:"opened_dialogs"`
 }
 
 // GetOperators returns all operators from company

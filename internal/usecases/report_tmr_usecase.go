@@ -57,32 +57,59 @@ func (u *ReportTmrUsecase) LoadTMR() {
 	// wait for all goroutines to finish
 	wg.Wait()
 
-	u.CalculateDialogsHanlder(dialogs)
+	u.CalculateDialogsHanlder(dialogs, operators)
 }
 
-func (u *ReportTmrUsecase) CalculateDialogsHanlder(dialogs []services.Dialog) {
+func (u *ReportTmrUsecase) CalculateDialogsHanlder(dialogs []services.Dialog, operators []services.Operator) {
+	// define wait group
+	var wg sync.WaitGroup
 
 	chat2deskService := services.Chat2DeskService{
 		Token: u.CompanyToken,
 	}
 
 	for _, d := range dialogs {
-		requests := chat2deskService.GetDialogsByRequestID(d.LastMessage.RequestID)
+		wg.Add(1)
+		go func(dialog services.Dialog) {
+			defer wg.Done()
 
-		sort.Sort(sortByCreated(requests))
+			requests := chat2deskService.GetDialogsByRequestID(dialog.LastMessage.RequestID)
 
-		messageFromClient := findMessageIN(requests)
+			sort.Sort(sortByCreated(requests))
 
-		var tmrInSeconds int
-		if messageFromClient != nil {
-			tmrInSeconds = getTMR(messageFromClient.Created)
-		} else {
-			tmrInSeconds = 0
-		}
+			messageFromClient := findMessageIN(requests)
 
-		fmt.Println("DialogID: ", d.ID, " - TMR: ", tmrInSeconds)
+			var tmrInSeconds int
+			if messageFromClient != nil {
+				tmrInSeconds = getTMR(messageFromClient.Created)
+			} else {
+				tmrInSeconds = 0
+			}
+
+			client := chat2deskService.GetClientByID(dialog.LastMessage.ClientID)
+			statusTAG := "Sem tag"
+			if len(client.Tags) > 0 {
+				statusTAG = client.Tags[0].Label
+			}
+
+			for _, o := range operators {
+				if o.ID == dialog.OperatorID {
+					fmt.Println("dialogID:", dialog.ID)
+					fmt.Println("operatorID:", o.ID)
+					fmt.Println("operatorName:", o.FirstName)
+					fmt.Println("tmrInSeconds:", tmrInSeconds)
+					fmt.Println("qtdDialogs:", o.OpenedDialogs)
+					fmt.Println("clientPhone:", client.Phone)
+					fmt.Println("status:", statusTAG)
+					fmt.Println("=====================================")
+				}
+			}
+
+		}(d)
 
 	}
+	// wait for all goroutines to finish
+	wg.Wait()
 }
 
 func findMessageIN(requests []services.ResponseRequests) *services.ResponseRequests {
