@@ -85,10 +85,11 @@ type Dialog struct {
 }
 
 type LastMessage struct {
-	ID       int    `json:"id"`
-	Type     string `json:"type"`
-	Created  string `json:"created"`
-	ClientID int    `json:"client_id"`
+	ID        int    `json:"id"`
+	Type      string `json:"type"`
+	Created   string `json:"created"`
+	ClientID  int    `json:"client_id"`
+	RequestID int    `json:"request_id"`
 }
 
 // GetAllDialogsOpenByOperatorID returns all dialogs open by operator id
@@ -126,40 +127,19 @@ func (s *Chat2DeskService) GetAllDialogsOpenByOperatorID(operatorID int) []Dialo
 	return filteredDialogs
 }
 
-// GetDialogsByOperator returns all dialogs opened by operator id
-func (s *Chat2DeskService) GetDialogsByOperator(operatorID int) []Dialog {
-	queryString := "state=open&limit=200&order=desc"
-	path := fmt.Sprintf("%s/dialogs?operator_id=%s&%s", url, strconv.Itoa(operatorID), queryString)
-	resp, err := providers.MakeRquest(http.MethodGet, path, s.Token, nil)
-	if err != nil {
-		os.Exit(1)
-	}
-	data, err := io.ReadAll(resp.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	var dialog ResponseDialogs
-	json.Unmarshal(data, &dialog)
-	return dialog.Data
-}
-
-type ResponseMessages struct {
-	Data []Message `json:"data"`
-}
-
-type Message struct {
-	ID         int    `json:"id"`
+type ResponseRequests struct {
+	RequestID  int    `json:"id"`
+	Text       string `json:"text"`
 	Type       string `json:"type"`
 	Created    string `json:"created"`
-	DialogID   int    `json:"dialog_id"`
-	OperatorID int    `json:"operator_id"`
-	ClientID   int    `json:"client_id"`
+	ClientID   int    `json:"clientID"`
+	OperatorID int    `json:"operatorID"`
+	ChannelID  int    `json:"channelID"`
+	DialogID   int    `json:"dialogID"`
 }
 
-// GetMessageByDialogID returns all messages from dialog id
-func (s *Chat2DeskService) GetMessageByDialogID(dialogID int) []Message {
-	path := fmt.Sprintf("%s/messages?dialog_id=%s&limit=200&order=desc", url, strconv.Itoa(dialogID))
+func (s *Chat2DeskService) GetDialogsByRequestID(requestID int) []ResponseRequests {
+	path := fmt.Sprintf("%s/requests/%s/messages", url, strconv.Itoa(requestID))
 	resp, err := providers.MakeRquest(http.MethodGet, path, s.Token, nil)
 	if err != nil {
 		os.Exit(1)
@@ -169,10 +149,10 @@ func (s *Chat2DeskService) GetMessageByDialogID(dialogID int) []Message {
 		log.Fatal(err)
 	}
 
-	var messages ResponseMessages
-	json.Unmarshal(data, &messages)
-	filteredMessage := verifyDatetimeMessagesIsToday(messages.Data)
-	return filteredMessage
+	var requests []ResponseRequests
+	json.Unmarshal(data, &requests)
+
+	return requests
 }
 
 type ResposeClients struct {
@@ -218,19 +198,4 @@ func verifyDatetimeDialogIsToday(dialogs []Dialog) []Dialog {
 	}
 
 	return filteredDialogs
-}
-
-// verifyDatetimeMessagesIsToday filters messages that are not from today
-func verifyDatetimeMessagesIsToday(messages []Message) []Message {
-	today := time.Now().Format("2006-01-02")
-
-	filteredMessage := []Message{}
-	for _, m := range messages {
-		messageIsToday := m.Created[0:10]
-		if messageIsToday == today {
-			filteredMessage = append(filteredMessage, m)
-		}
-	}
-
-	return filteredMessage
 }
