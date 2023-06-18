@@ -11,9 +11,8 @@ CREATE TABLE reports (
     tmr_in_seconds INT,
     opened_dialogs INT,
     client VARCHAR(255),
-    status VARCHAR(255),
+    status_tag VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT uc_dialog_id UNIQUE (dialog_id),
-    
-)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    CONSTRAINT uc_dialog_id UNIQUE (dialog_id)
+) ENGINE=INNODB;

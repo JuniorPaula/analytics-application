@@ -22,13 +22,13 @@ type OperatorDialogData struct {
 }
 
 type DialogInfo struct {
-	DialogID     int    `json:"dialog_id"`
-	OperatorID   int    `json:"operator_id"`
-	OperatorName string `json:"operator_name"`
-	TmrInSeconds int    `json:"tmr_in_seconds"`
-	QtdDialogs   int    `json:"qtd_dialogs"`
-	ClientPhone  string `json:"client_phone"`
-	Status       string `json:"status"`
+	OperatorName  string `json:"operator_name"`
+	OperatorID    int    `json:"operator_id"`
+	DialogID      int    `json:"dialog_id"`
+	TMRInSeconds  int    `json:"tmr_in_seconds"`
+	OpenedDialogs int    `json:"opened_dialogs"`
+	Client        string `json:"client"`
+	StatusTAG     string `json:"status_tag"`
 }
 
 func (u *ReportTmrUsecase) LoadTMR() {
@@ -73,7 +73,7 @@ func (u *ReportTmrUsecase) CalculateDialogsHanlder(dialogs []services.Dialog, op
 
 	db, err := database.Connect()
 	if err != nil {
-		log.Fatalf("Error while connect database; %s", err)
+		log.Fatalf("Error while connect database;\n %s", err)
 	}
 	defer db.Close()
 
@@ -114,13 +114,14 @@ func (u *ReportTmrUsecase) CalculateDialogsHanlder(dialogs []services.Dialog, op
 					report.TMRInSeconds = tmrInSeconds
 					report.OpenedDialogs = o.OpenedDialogs
 					report.Client = client.Phone
-					report.Status = statusTAG
+					report.StatusTAG = statusTAG
 
 					reportID, err := repository.CreateOrUpdate(report)
 					if err != nil {
-						log.Fatalf("Error while create or update report; %s", err)
+						fmt.Println("--- report upserted ---")
+						continue
 					}
-					fmt.Printf("ID: [%d]; report computed:", reportID)
+					fmt.Printf("ID: [%d]; new report computed:\n", reportID)
 					fmt.Println("--------------------------")
 				}
 			}

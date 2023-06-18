@@ -17,7 +17,7 @@ type Report struct {
 	TMRInSeconds  int    `json:"tmr_in_seconds"`
 	OpenedDialogs int    `json:"opened_dialogs"`
 	Client        string `json:"client"`
-	Status        string `json:"status"`
+	StatusTAG     string `json:"status_tag"`
 
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
@@ -30,7 +30,7 @@ func NewReportRepository(db *sql.DB) *ReportRepository {
 func (r *ReportRepository) CreateOrUpdate(report Report) (uint64, error) {
 	var id uint64
 	err := r.db.QueryRow(`
-		INSERT INTO reports (operator_name, operator_id, dialog_id, tmr_in_seconds, opened_dialogs, client, status)
+		INSERT INTO reports (operator_name, operator_id, dialog_id, tmr_in_seconds, opened_dialogs, client, status_tag)
 		VALUES (?, ?, ?, ?, ?, ?, ?)
 		ON DUPLICATE KEY UPDATE
 			operator_name = VALUES(operator_name),
@@ -39,8 +39,8 @@ func (r *ReportRepository) CreateOrUpdate(report Report) (uint64, error) {
 			tmr_in_seconds = VALUES(tmr_in_seconds),
 			opened_dialogs = VALUES(opened_dialogs),
 			client = VALUES(client),
-			status = VALUES(status)
-	`, report.OperatorName, report.OperatorID, report.DialogID, report.TMRInSeconds, report.OpenedDialogs, report.Client, report.Status).Scan(&id)
+			status_tag = VALUES(status_tag)
+	`, report.OperatorName, report.OperatorID, report.DialogID, report.TMRInSeconds, report.OpenedDialogs, report.Client, report.StatusTAG).Scan(&id)
 	if err != nil {
 		return 0, err
 	}

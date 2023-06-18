@@ -27,7 +27,7 @@ func InitVariables() {
 		Port = 8081
 	}
 
-	ConnectStringDatabase = fmt.Sprintf("%s:%s@%s?charset=utf8&parseTime=True&loc=Local",
+	ConnectStringDatabase = fmt.Sprintf("%s:%s@/%s?charset=utf8&parseTime=True&loc=Local",
 		os.Getenv("DB_USER"),
 		os.Getenv("DB_PASSWORD"),
 		os.Getenv("DB_DATABASE"),

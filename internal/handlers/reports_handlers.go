@@ -6,12 +6,10 @@ import (
 	"net/http"
 )
 
-var companyToken = config.CompanyToken
-
 func LoadTMR_handler(w http.ResponseWriter, r *http.Request) {
 
 	uc := usecases.ReportTmrUsecase{
-		CompanyToken: companyToken,
+		CompanyToken: config.CompanyToken,
 	}
 	uc.LoadTMR()
 
