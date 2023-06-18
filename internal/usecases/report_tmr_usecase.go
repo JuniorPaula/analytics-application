@@ -1,8 +1,11 @@
 package usecases
 
 import (
+	"c2d-reports/internal/database"
+	"c2d-reports/internal/repositories"
 	"c2d-reports/internal/services"
 	"fmt"
+	"log"
 	"sort"
 	"sync"
 	"time"
@@ -68,6 +71,16 @@ func (u *ReportTmrUsecase) CalculateDialogsHanlder(dialogs []services.Dialog, op
 		Token: u.CompanyToken,
 	}
 
+	db, err := database.Connect()
+	if err != nil {
+		log.Fatalf("Error while connect database; %s", err)
+	}
+	defer db.Close()
+
+	repository := repositories.NewReportRepository(db)
+
+	var report repositories.Report
+
 	for _, d := range dialogs {
 		wg.Add(1)
 		go func(dialog services.Dialog) {
@@ -94,20 +107,28 @@ func (u *ReportTmrUsecase) CalculateDialogsHanlder(dialogs []services.Dialog, op
 
 			for _, o := range operators {
 				if o.ID == dialog.OperatorID {
-					fmt.Println("dialogID:", dialog.ID)
-					fmt.Println("operatorID:", o.ID)
-					fmt.Println("operatorName:", o.FirstName)
-					fmt.Println("tmrInSeconds:", tmrInSeconds)
-					fmt.Println("qtdDialogs:", o.OpenedDialogs)
-					fmt.Println("clientPhone:", client.Phone)
-					fmt.Println("status:", statusTAG)
-					fmt.Println("=====================================")
+
+					report.OperatorName = o.FirstName
+					report.OperatorID = o.ID
+					report.DialogID = dialog.ID
+					report.TMRInSeconds = tmrInSeconds
+					report.OpenedDialogs = o.OpenedDialogs
+					report.Client = client.Phone
+					report.Status = statusTAG
+
+					reportID, err := repository.CreateOrUpdate(report)
+					if err != nil {
+						log.Fatalf("Error while create or update report; %s", err)
+					}
+					fmt.Printf("ID: [%d]; report computed:", reportID)
+					fmt.Println("--------------------------")
 				}
 			}
 
 		}(d)
 
 	}
+
 	// wait for all goroutines to finish
 	wg.Wait()
 }

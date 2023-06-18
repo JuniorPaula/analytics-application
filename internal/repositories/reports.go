@@ -12,10 +12,10 @@ type ReportRepository struct {
 type Report struct {
 	ID            int64  `json:"id,omitempty"`
 	OperatorName  string `json:"operator_name"`
-	OperatorID    int64  `json:"operator_id"`
-	DialogID      int64  `json:"dialog_id"`
-	TMRInSeconds  int64  `json:"tmr_in_seconds"`
-	OpenedDialogs int64  `json:"opened_dialogs"`
+	OperatorID    int    `json:"operator_id"`
+	DialogID      int    `json:"dialog_id"`
+	TMRInSeconds  int    `json:"tmr_in_seconds"`
+	OpenedDialogs int    `json:"opened_dialogs"`
 	Client        string `json:"client"`
 	Status        string `json:"status"`
 

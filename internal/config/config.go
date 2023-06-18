@@ -33,4 +33,6 @@ func InitVariables() {
 		os.Getenv("DB_DATABASE"),
 	)
 
+	CompanyToken = os.Getenv("COMPANY_TOKEN")
+
 }

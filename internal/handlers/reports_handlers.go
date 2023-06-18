@@ -1,11 +1,12 @@
 package handlers
 
 import (
+	"c2d-reports/internal/config"
 	"c2d-reports/internal/usecases"
 	"net/http"
 )
 
-var companyToken = "203a34841c77f66c9e94524d38d79d"
+var companyToken = config.CompanyToken
 
 func LoadTMR_handler(w http.ResponseWriter, r *http.Request) {
 
