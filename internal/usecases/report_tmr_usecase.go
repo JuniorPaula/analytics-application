@@ -21,16 +21,6 @@ type OperatorDialogData struct {
 	QtdDialogs   int
 }
 
-type DialogInfo struct {
-	OperatorName  string `json:"operator_name"`
-	OperatorID    int    `json:"operator_id"`
-	DialogID      int    `json:"dialog_id"`
-	TMRInSeconds  int    `json:"tmr_in_seconds"`
-	OpenedDialogs int    `json:"opened_dialogs"`
-	Client        string `json:"client"`
-	StatusTAG     string `json:"status_tag"`
-}
-
 func (u *ReportTmrUsecase) LoadTMR() {
 	// difine wait group
 	var wg sync.WaitGroup
