@@ -1,6 +1,7 @@
 package main
 
 import (
+	"c2d-reports/internal/config"
 	"c2d-reports/internal/router"
 	"fmt"
 	"log"
@@ -8,9 +9,14 @@ import (
 )
 
 func main() {
+	// initialize .env variables
+	config.InitVariables()
+
+	// print out the port
+	fmt.Println("[::] Starting server on the port: ", config.Port)
+
 	r := router.Handler()
 
 	// start the server
-	fmt.Println("[::] Starting server on the port 8080")
-	log.Fatal(http.ListenAndServe(":8080", r))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", config.Port), r))
 }
