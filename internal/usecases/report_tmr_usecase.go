@@ -6,7 +6,6 @@ import (
 	"c2d-reports/internal/services"
 	"fmt"
 	"log"
-	"sort"
 	"sync"
 	"time"
 )
@@ -76,15 +75,10 @@ func (u *ReportTmrUsecase) CalculateDialogsHanlder(dialogs []services.Dialog, op
 		go func(dialog services.Dialog) {
 			defer wg.Done()
 
-			requests := chat2deskService.GetDialogsByRequestID(dialog.LastMessage.RequestID)
-
-			sort.Sort(sortByCreated(requests))
-
-			messageFromClient := findMessageIN(requests)
-
 			var tmrInSeconds int
-			if messageFromClient != nil {
-				tmrInSeconds = getTMR(messageFromClient.Created)
+			dialog.LastMessage.Type = "from_client"
+			if dialog.LastMessage.Type == "from_client" {
+				tmrInSeconds = getTMR(dialog.LastMessage.Created)
 			} else {
 				tmrInSeconds = 0
 			}
@@ -113,6 +107,7 @@ func (u *ReportTmrUsecase) CalculateDialogsHanlder(dialogs []services.Dialog, op
 					}
 					fmt.Printf("ID: [%d]; new report computed:\n", reportID)
 					fmt.Println("--------------------------")
+					fmt.Println("Report:", report)
 				}
 			}
 
@@ -124,23 +119,28 @@ func (u *ReportTmrUsecase) CalculateDialogsHanlder(dialogs []services.Dialog, op
 	wg.Wait()
 }
 
-func findMessageIN(requests []services.ResponseRequests) *services.ResponseRequests {
-	for _, r := range requests {
-		if r.Type == "in" {
-			return &requests[0]
-		}
+// func findMessageIN(requests []services.ResponseRequests) *services.ResponseRequests {
+// 	for _, r := range requests {
+// 		if r.Type == "in" {
+// 			return &requests[0]
+// 		}
+// 	}
+// 	return nil
+// }
+
+// type sortByCreated []services.ResponseRequests
+
+// func (r sortByCreated) Len() int           { return len(r) }
+// func (r sortByCreated) Less(i, j int) bool { return r[i].Created < r[j].Created }
+// func (r sortByCreated) Swap(i, j int)      { r[i], r[j] = r[j], r[i] }
+
+func getTMR(created string) int {
+	createdParseTime, err := time.Parse("2006-01-02T15:04:05 MST", created)
+	if err != nil {
+		fmt.Println("Error while parse time")
+		return 0
 	}
-	return nil
-}
 
-type sortByCreated []services.ResponseRequests
-
-func (r sortByCreated) Len() int           { return len(r) }
-func (r sortByCreated) Less(i, j int) bool { return r[i].Created < r[j].Created }
-func (r sortByCreated) Swap(i, j int)      { r[i], r[j] = r[j], r[i] }
-
-func getTMR(created int) int {
-	createdParseTime := time.Unix(int64(created), 0)
 	todayTime := time.Now()
 	timerTMR := int(todayTime.Sub(createdParseTime).Seconds())
 	return timerTMR
