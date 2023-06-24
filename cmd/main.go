@@ -31,4 +31,5 @@ func startSchedule() {
 	// schedule the jobs
 	createReportSchedule := jobs.NewSchedule()
 	go createReportSchedule.ScheduleCalculateReport()
+	go createReportSchedule.ScheduleDeleteReport()
 }
