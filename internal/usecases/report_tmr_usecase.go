@@ -69,40 +69,42 @@ func (u *ReportTmrUsecase) CalculateDialogsHanlder(dialogs []services.Dialog, op
 		go func(dialog services.Dialog) {
 			defer wg.Done()
 
-			var tmrInSeconds int
-			dialog.LastMessage.Type = "from_client"
-			if dialog.LastMessage.Type == "from_client" {
-				tmrInSeconds = getTMR(dialog.LastMessage.Created)
-			} else {
-				tmrInSeconds = 0
-			}
-
-			client := chat2deskService.GetClientByID(dialog.LastMessage.ClientID)
-			statusTAG := "Sem tag"
-			if len(client.Tags) > 0 {
-				statusTAG = client.Tags[0].Label
-			}
-
-			for _, o := range operators {
-				if o.ID == dialog.OperatorID {
-
-					report.OperatorName = o.FirstName
-					report.OperatorID = o.ID
-					report.DialogID = dialog.ID
-					report.TMRInSeconds = tmrInSeconds
-					report.OpenedDialogs = o.OpenedDialogs
-					report.Client = client.Phone
-					report.StatusTAG = statusTAG
-
-					reportID, err := repository.CreateOrUpdate(report)
-					if err != nil {
-						fmt.Println("--- report upserted ---")
-						continue
-					}
-					fmt.Printf("ID: [%d]; new report computed:\n", reportID)
-					fmt.Println("--------------------------")
-					fmt.Println("Report:", report)
+			if dialog.End == "" {
+				var tmrInSeconds int
+				if dialog.LastMessage.Type == "from_client" {
+					tmrInSeconds = getTMR(dialog.LastMessage.Created)
+				} else {
+					tmrInSeconds = 0
 				}
+
+				client := chat2deskService.GetClientByID(dialog.LastMessage.ClientID)
+				statusTAG := "Sem tag"
+				if len(client.Tags) > 0 {
+					statusTAG = client.Tags[0].Label
+				}
+
+				for _, o := range operators {
+					if o.ID == dialog.OperatorID {
+
+						report.OperatorName = o.FirstName
+						report.OperatorID = o.ID
+						report.DialogID = dialog.ID
+						report.TMRInSeconds = tmrInSeconds
+						report.OpenedDialogs = o.OpenedDialogs
+						report.Client = client.Phone
+						report.StatusTAG = statusTAG
+
+						reportID, err := repository.CreateOrUpdate(report)
+						if err != nil {
+							fmt.Println("--- report upserted ---")
+							continue
+						}
+						fmt.Printf("ID: [%d]; new report computed:\n", reportID)
+						fmt.Println("--------------------------")
+						fmt.Println("Report:", report)
+					}
+				}
+
 			}
 
 		}(d)
