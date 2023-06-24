@@ -3,11 +3,16 @@ package usecases
 import (
 	"c2d-reports/internal/database"
 	"c2d-reports/internal/repositories"
+	"c2d-reports/internal/services"
 	"fmt"
 	"log"
 )
 
 func (u *ReportTmrUsecase) DeleteReport() {
+
+	chat2deskService := services.Chat2DeskService{
+		Token: u.CompanyToken,
+	}
 
 	db, err := database.Connect()
 	if err != nil {
@@ -22,5 +27,9 @@ func (u *ReportTmrUsecase) DeleteReport() {
 		log.Fatalf("could not get reports: %v", err)
 	}
 
-	fmt.Println(reports)
+	for _, r := range reports {
+		dialog := chat2deskService.GetDialogByID(r.DialogID)
+		fmt.Println(dialog)
+	}
+
 }

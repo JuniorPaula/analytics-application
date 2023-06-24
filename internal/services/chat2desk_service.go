@@ -76,6 +76,10 @@ type Meta struct {
 	Offset int `json:"offset"`
 }
 
+type ResponseDialog struct {
+	Data Dialog `json:"data"`
+}
+
 type Dialog struct {
 	ID          int         `json:"id"`
 	State       string      `json:"state"`
@@ -114,32 +118,22 @@ func (s *Chat2DeskService) GetAllDialogsOpenByOperatorID(operatorID int) []Dialo
 	return filteredDialogs
 }
 
-type ResponseRequests struct {
-	RequestID  int    `json:"id"`
-	Text       string `json:"text"`
-	Type       string `json:"type"`
-	Created    int    `json:"created"`
-	ClientID   int    `json:"clientID"`
-	OperatorID int    `json:"operatorID"`
-	ChannelID  int    `json:"channelID"`
-	DialogID   int    `json:"dialogID"`
-}
-
-func (s *Chat2DeskService) GetDialogsByRequestID(requestID int) []ResponseRequests {
-	path := fmt.Sprintf("%s/requests/%s/messages", url, strconv.Itoa(requestID))
+func (s *Chat2DeskService) GetDialogByID(dialogID int) Dialog {
+	path := fmt.Sprintf("%s/dialogs/%s", url, strconv.Itoa(dialogID))
 	resp, err := providers.MakeRquest(http.MethodGet, path, s.Token, nil)
 	if err != nil {
 		os.Exit(1)
 	}
+
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	var requests []ResponseRequests
-	json.Unmarshal(data, &requests)
+	var dialog ResponseDialog
+	json.Unmarshal(data, &dialog)
 
-	return requests
+	return dialog.Data
 }
 
 type ResposeClients struct {
