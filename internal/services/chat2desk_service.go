@@ -95,35 +95,21 @@ type LastMessage struct {
 
 // GetAllDialogsOpenByOperatorID returns all dialogs open by operator id
 func (s *Chat2DeskService) GetAllDialogsOpenByOperatorID(operatorID int) []Dialog {
-	var offser int
-	var index int
-
-	var dialogs []Dialog
-	for {
-		index++
-		var totalDialogsCounted int = 0
-		queryString := fmt.Sprintf("state=open&limit=200&order=desc&offset=%d", offser)
-		path := fmt.Sprintf("%s/dialogs?operator_id=%s&%s", url, strconv.Itoa(operatorID), queryString)
-		resp, err := providers.MakeRquest(http.MethodGet, path, s.Token, nil)
-		if err != nil {
-			os.Exit(1)
-		}
-		data, err := io.ReadAll(resp.Body)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		var dialog ResponseDialogs
-		json.Unmarshal(data, &dialog)
-
-		totalDialogsCounted = dialog.Meta.Total
-		dialogs = append(dialogs, dialog.Data...)
-
-		if len(dialog.Data) >= totalDialogsCounted {
-			break
-		}
+	queryString := "state=open&limit=200&order=desc"
+	path := fmt.Sprintf("%s/dialogs?operator_id=%s&%s", url, strconv.Itoa(operatorID), queryString)
+	resp, err := providers.MakeRquest(http.MethodGet, path, s.Token, nil)
+	if err != nil {
+		os.Exit(1)
 	}
-	filteredDialogs := verifyDatetimeDialogIsToday(dialogs)
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var dialogs ResponseDialogs
+	json.Unmarshal(data, &dialogs)
+
+	filteredDialogs := verifyDatetimeDialogIsToday(dialogs.Data)
 
 	return filteredDialogs
 }
