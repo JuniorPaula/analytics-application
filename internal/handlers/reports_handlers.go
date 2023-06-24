@@ -16,3 +16,13 @@ func LoadTMR_handler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	w.Write([]byte("Hello form LoadTMR"))
 }
+
+func DeleteReports_handler(w http.ResponseWriter, r *http.Request) {
+	uc := usecases.ReportTmrUsecase{
+		CompanyToken: config.CompanyToken,
+	}
+	uc.DeleteReport()
+
+	defer r.Body.Close()
+	w.Write([]byte("Hello form FindAllReports"))
+}

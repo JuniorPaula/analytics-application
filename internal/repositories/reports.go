@@ -46,3 +46,25 @@ func (r *ReportRepository) CreateOrUpdate(report Report) (uint64, error) {
 	}
 	return id, nil
 }
+
+func (r *ReportRepository) FindAll() ([]Report, error) {
+	rows, err := r.db.Query(`
+		SELECT id, operator_name, operator_id, dialog_id, tmr_in_seconds, opened_dialogs, client, status_tag, created_at, updated_at
+		FROM reports
+	`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var reports []Report
+	for rows.Next() {
+		var report Report
+		err := rows.Scan(&report.ID, &report.OperatorName, &report.OperatorID, &report.DialogID, &report.TMRInSeconds, &report.OpenedDialogs, &report.Client, &report.StatusTAG, &report.CreatedAt, &report.UpdatedAt)
+		if err != nil {
+			return nil, err
+		}
+		reports = append(reports, report)
+	}
+	return reports, nil
+}
