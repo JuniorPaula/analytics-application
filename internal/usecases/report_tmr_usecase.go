@@ -14,12 +14,6 @@ type ReportTmrUsecase struct {
 	CompanyToken string
 }
 
-type OperatorDialogData struct {
-	OperatorID   int
-	OperatorName string
-	QtdDialogs   int
-}
-
 func (u *ReportTmrUsecase) LoadTMR() {
 	// difine wait group
 	var wg sync.WaitGroup
@@ -118,21 +112,6 @@ func (u *ReportTmrUsecase) CalculateDialogsHanlder(dialogs []services.Dialog, op
 	// wait for all goroutines to finish
 	wg.Wait()
 }
-
-// func findMessageIN(requests []services.ResponseRequests) *services.ResponseRequests {
-// 	for _, r := range requests {
-// 		if r.Type == "in" {
-// 			return &requests[0]
-// 		}
-// 	}
-// 	return nil
-// }
-
-// type sortByCreated []services.ResponseRequests
-
-// func (r sortByCreated) Len() int           { return len(r) }
-// func (r sortByCreated) Less(i, j int) bool { return r[i].Created < r[j].Created }
-// func (r sortByCreated) Swap(i, j int)      { r[i], r[j] = r[j], r[i] }
 
 func getTMR(created string) int {
 	createdParseTime, err := time.Parse("2006-01-02T15:04:05 MST", created)
