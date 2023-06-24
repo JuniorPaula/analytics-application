@@ -68,3 +68,14 @@ func (r *ReportRepository) FindAll() ([]Report, error) {
 	}
 	return reports, nil
 }
+
+func (r *ReportRepository) DeleteReportByDialogID(dialogID int) error {
+	row, err := r.db.Query(`
+		DELETE FROM reports WHERE dialog_id = ? LIMIT 1 
+	`, dialogID)
+	if err != nil {
+		return err
+	}
+	defer row.Close()
+	return nil
+}

@@ -29,7 +29,14 @@ func (u *ReportTmrUsecase) DeleteReport() {
 
 	for _, r := range reports {
 		dialog := chat2deskService.GetDialogByID(r.DialogID)
-		fmt.Println(dialog)
+
+		if dialog.State == "closed" || dialog.End != "" {
+			err := repository.DeleteReportByDialogID(dialog.ID)
+			if err != nil {
+				log.Fatalf("failed to delete report: %v", err)
+			}
+			fmt.Printf("Report with dialog_id %d was deleted\n", dialog.ID)
+		}
 	}
 
 }
