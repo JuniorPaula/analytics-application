@@ -6,9 +6,11 @@ import (
 	"c2d-reports/internal/services"
 	"fmt"
 	"log"
+	"sync"
 )
 
 func (u *ReportTmrUsecase) DeleteReport() {
+	var wg sync.WaitGroup
 
 	chat2deskService := services.Chat2DeskService{
 		Token: u.CompanyToken,
@@ -28,15 +30,23 @@ func (u *ReportTmrUsecase) DeleteReport() {
 	}
 
 	for _, r := range reports {
-		dialog := chat2deskService.GetDialogByID(r.DialogID)
+		wg.Add(1)
+		go func(dialogID int) {
+			defer wg.Done()
+			dialog := chat2deskService.GetDialogByID(dialogID)
 
-		if dialog.State == "closed" || dialog.End != "" {
-			err := repository.DeleteReportByDialogID(dialog.ID)
-			if err != nil {
-				log.Fatalf("failed to delete report: %v", err)
+			if dialog.State == "closed" || dialog.End != "" {
+				err := repository.DeleteReportByDialogID(dialog.ID)
+				if err != nil {
+					log.Fatalf("failed to delete report: %v", err)
+				}
+				fmt.Printf("Report with dialog_id %d was deleted\n", dialog.ID)
 			}
-			fmt.Printf("Report with dialog_id %d was deleted\n", dialog.ID)
-		}
+			fmt.Println("nothing to delete")
+
+		}(r.DialogID)
 	}
 
+	// wait for all goroutines to finish
+	wg.Wait()
 }
