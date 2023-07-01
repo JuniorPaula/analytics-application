@@ -13,6 +13,12 @@ var (
 	ConnectStringDatabase = ""
 	Port                  = 0
 	CompanyToken          = ""
+	RabbitMQHost          = ""
+	RabbitMQPort          = ""
+	RabbitMQUser          = ""
+	RabbitMQPassword      = ""
+	RabbitMQVHost         = ""
+	AmqpURI               = ""
 )
 
 func InitVariables() {
@@ -27,12 +33,29 @@ func InitVariables() {
 		Port = 8081
 	}
 
+	// Database Config
 	ConnectStringDatabase = fmt.Sprintf("%s:%s@/%s?charset=utf8&parseTime=True&loc=Local",
 		os.Getenv("DB_USER"),
 		os.Getenv("DB_PASSWORD"),
 		os.Getenv("DB_DATABASE"),
 	)
 
+	// Company Token
 	CompanyToken = os.Getenv("COMPANY_TOKEN")
+
+	// RabbitMQ Config
+	RabbitMQHost = os.Getenv("RABBITMQ_HOST")
+	RabbitMQPort = os.Getenv("RABBITMQ_PORT")
+	RabbitMQUser = os.Getenv("RABBITMQ_USER")
+	RabbitMQPassword = os.Getenv("RABBITMQ_PASSWORD")
+	RabbitMQVHost = os.Getenv("RABBITMQ_VHOST")
+
+	AmqpURI = fmt.Sprintf("amqp://%s:%s@%s:%s/%s",
+		RabbitMQUser,
+		RabbitMQPassword,
+		RabbitMQHost,
+		RabbitMQPort,
+		RabbitMQVHost,
+	)
 
 }
