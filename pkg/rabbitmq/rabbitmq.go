@@ -13,22 +13,19 @@ import (
 var queueName = "chat_reports"
 var exchangeName = "reports"
 
-func PusblisherOnReportsQueue(message repositories.Report) {
+func connect() *amqp.Connection {
 	// connect to rabbitmq
 	conn, err := amqp.Dial(config.AmqpURI)
 	if err != nil {
 		log.Fatalf("error while to connect rabbitMQ: %v", err)
 	}
-	defer conn.Close()
 
-	// create a channel
-	ch, err := conn.Channel()
-	if err != nil {
-		log.Fatalf("error while to create a channel: %v", err)
-	}
+	return conn
+}
 
+func declareExchange(ch *amqp.Channel) error {
 	// declare exchange
-	err = ch.ExchangeDeclare(
+	err := ch.ExchangeDeclare(
 		exchangeName,        // name
 		amqp.ExchangeDirect, // kind
 		true,                // durable
@@ -38,11 +35,15 @@ func PusblisherOnReportsQueue(message repositories.Report) {
 		nil,                 // args
 	)
 	if err != nil {
-		log.Fatalf("error while to declare exchange: %v", err)
+		return fmt.Errorf("error while to declare exchange: %v", err)
 	}
 
+	return nil
+}
+
+func declareQueue(ch *amqp.Channel) error {
 	// declare a queue
-	_, err = ch.QueueDeclare(
+	_, err := ch.QueueDeclare(
 		queueName, // name
 		true,      // durable
 		false,     // autoDelete
@@ -51,7 +52,7 @@ func PusblisherOnReportsQueue(message repositories.Report) {
 		nil,       // args
 	)
 	if err != nil {
-		log.Fatalf("error while to declare a queue: %v", err)
+		return fmt.Errorf("error while to declare a queue: %v", err)
 	}
 
 	// bind queue to exchange
@@ -63,7 +64,33 @@ func PusblisherOnReportsQueue(message repositories.Report) {
 		nil,           // args
 	)
 	if err != nil {
-		log.Fatalf("error while to bind queue to exchange: %v", err)
+		return fmt.Errorf("error while to bind queue to exchange: %v", err)
+	}
+
+	return nil
+}
+
+func PusblisherOnReportsQueue(message repositories.Report) {
+	// connect to rabbitmq
+	conn := connect()
+	defer conn.Close()
+
+	// create a channel
+	ch, err := conn.Channel()
+	if err != nil {
+		log.Fatalf("error while to create a channel: %v", err)
+	}
+
+	// declare exchange
+	err = declareExchange(ch)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// declare a queue
+	err = declareQueue(ch)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	// json Marshal
