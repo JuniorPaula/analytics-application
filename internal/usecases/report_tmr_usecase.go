@@ -4,6 +4,7 @@ import (
 	"c2d-reports/internal/database"
 	"c2d-reports/internal/repositories"
 	"c2d-reports/internal/services"
+	"c2d-reports/pkg/rabbitmq"
 	"fmt"
 	"log"
 	"sync"
@@ -60,7 +61,7 @@ func (u *ReportTmrUsecase) CalculateDialogsHanlder(dialogs []services.Dialog, op
 	}
 	defer db.Close()
 
-	repository := repositories.NewReportRepository(db)
+	// repository := repositories.NewReportRepository(db)
 
 	var report repositories.Report
 
@@ -94,12 +95,13 @@ func (u *ReportTmrUsecase) CalculateDialogsHanlder(dialogs []services.Dialog, op
 						report.Client = client.Phone
 						report.StatusTAG = statusTAG
 
-						reportID, err := repository.CreateOrUpdate(report)
-						if err != nil {
-							fmt.Println("--- report upserted ---")
-							continue
-						}
-						fmt.Printf("ID: [%d]; new report computed:\n", reportID)
+						rabbitmq.PusblisherOnReportsQueue(report)
+						// reportID, err := repository.CreateOrUpdate(report)
+						// if err != nil {
+						// 	fmt.Println("--- report upserted ---")
+						// 	continue
+						// }
+						// fmt.Printf("ID: [%d]; new report computed:\n", reportID)
 						fmt.Println("--------------------------")
 						fmt.Println("Report:", report)
 					}
