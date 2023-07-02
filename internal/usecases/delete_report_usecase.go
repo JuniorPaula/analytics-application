@@ -9,6 +9,7 @@ import (
 	"sync"
 )
 
+// ReportTmrUsecase is the struct that defines the usecase for the reports
 func (u *ReportTmrUsecase) DeleteReport() {
 	var wg sync.WaitGroup
 

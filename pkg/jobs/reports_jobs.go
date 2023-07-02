@@ -12,12 +12,14 @@ type Schedule struct {
 	Cron *cron.Cron
 }
 
+// NewSchedule returns a new Schedule
 func NewSchedule() *Schedule {
 	return &Schedule{
 		Cron: cron.New(),
 	}
 }
 
+// ScheduleCalculateReport schedules the job to calculate the report
 func (s *Schedule) ScheduleCalculateReport() {
 	c := s.Cron
 	uc := usecases.ReportTmrUsecase{
@@ -33,6 +35,7 @@ func (s *Schedule) ScheduleCalculateReport() {
 	c.Start()
 }
 
+// ScheduleDeleteReport schedules the job to delete the report
 func (s *Schedule) ScheduleDeleteReport() {
 	c := s.Cron
 	uc := usecases.ReportTmrUsecase{

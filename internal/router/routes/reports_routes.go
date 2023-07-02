@@ -5,6 +5,7 @@ import (
 	"net/http"
 )
 
+// Route is the model for the routes
 var reportsRoutes = []Route{
 	{
 		URI:    "/tmr/load",

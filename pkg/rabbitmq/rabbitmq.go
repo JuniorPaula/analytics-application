@@ -11,6 +11,7 @@ import (
 	"github.com/streadway/amqp"
 )
 
+// ConsumerOnReportsQueue consumes the messages from the reports queue
 func connect() *amqp.Connection {
 	// connect to rabbitmq
 	conn, err := amqp.Dial(config.AmqpURI)
@@ -21,6 +22,7 @@ func connect() *amqp.Connection {
 	return conn
 }
 
+// declareExchange declares an exchange of type direct
 func declareExchange(ch *amqp.Channel) error {
 	// declare exchange
 	err := ch.ExchangeDeclare(
@@ -39,6 +41,7 @@ func declareExchange(ch *amqp.Channel) error {
 	return nil
 }
 
+// declareQueue declares a queue and binds it to the exchange
 func declareQueue(ch *amqp.Channel) error {
 	// declare a queue
 	_, err := ch.QueueDeclare(
@@ -68,6 +71,7 @@ func declareQueue(ch *amqp.Channel) error {
 	return nil
 }
 
+// PusblisherOnReportsQueue publishes a message on the reports queue
 func PusblisherOnReportsQueue(message repositories.Report) {
 	// connect to rabbitmq
 	conn := connect()
@@ -115,6 +119,7 @@ func PusblisherOnReportsQueue(message repositories.Report) {
 	fmt.Println("message published to queue")
 }
 
+// ConsumerOnReportsQueue consumes a message from the reports queue
 func ConsumerOnReportsQueue() {
 	// connect to rabbitmq
 	conn := connect()

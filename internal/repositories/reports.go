@@ -5,10 +5,15 @@ import (
 	"time"
 )
 
+// ReportRepository is the repository for the reports
+// It contains all the methods that are used to interact with the database
 type ReportRepository struct {
 	db *sql.DB
 }
 
+// Report is the model for the reports
+// It contains all the fields that are used in the reports table
+// The json tags are used to map the fields to the json keys
 type Report struct {
 	ID            int64  `json:"id,omitempty"`
 	OperatorName  string `json:"operator_name"`
@@ -23,10 +28,15 @@ type Report struct {
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 }
 
+// NewReportRepository creates a new instance of ReportRepository
 func NewReportRepository(db *sql.DB) *ReportRepository {
 	return &ReportRepository{db}
 }
 
+// CreateOrUpdate creates or updates a report
+// It returns the id of the report and an error
+// If the report is created, the id will be the id of the new report
+// If the report is updated, the id will be the id of the updated report
 func (r *ReportRepository) CreateOrUpdate(report Report) (uint64, error) {
 	var id uint64
 	err := r.db.QueryRow(`
@@ -47,6 +57,8 @@ func (r *ReportRepository) CreateOrUpdate(report Report) (uint64, error) {
 	return id, nil
 }
 
+// FindAll returns all the reports
+// It returns a slice of reports and an error
 func (r *ReportRepository) FindAll() ([]Report, error) {
 	rows, err := r.db.Query(`
 		SELECT id, operator_name, operator_id, dialog_id, tmr_in_seconds, opened_dialogs, client, status_tag, created_at, updated_at
@@ -69,6 +81,7 @@ func (r *ReportRepository) FindAll() ([]Report, error) {
 	return reports, nil
 }
 
+// FindByDialogID returns a report by dialog id
 func (r *ReportRepository) DeleteReportByDialogID(dialogID int) error {
 	row, err := r.db.Query(`
 		DELETE FROM reports WHERE dialog_id = ? LIMIT 1 

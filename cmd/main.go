@@ -31,6 +31,9 @@ func main() {
 
 }
 
+// startSchedule schedules the jobs
+// 1. ScheduleCalculateReport - calculates the report for the current day
+// 2. ScheduleDeleteReport - deletes the report for the current day
 func startSchedule() {
 	// schedule the jobs
 	createReportSchedule := jobs.NewSchedule()

@@ -30,6 +30,7 @@ func VerifyStatusCodeErrors(w http.ResponseWriter, r *http.Response) {
 	WriteJSON(w, r.StatusCode, err)
 }
 
+// MakeRquest is a helper function to make requests
 func MakeRquest(method, url, token string, data io.Reader) (*http.Response, error) {
 	request, err := http.NewRequest(method, url, data)
 	if err != nil {

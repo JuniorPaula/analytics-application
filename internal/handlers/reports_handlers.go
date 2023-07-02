@@ -6,6 +6,8 @@ import (
 	"net/http"
 )
 
+// FindAllReports_handler handles the request to find all reports
+// This handler is used for testing purposes, its not used in production
 func LoadTMR_handler(w http.ResponseWriter, r *http.Request) {
 
 	uc := usecases.ReportTmrUsecase{
@@ -17,6 +19,8 @@ func LoadTMR_handler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Hello form LoadTMR"))
 }
 
+// FindAllReports_handler handles the request to find all reports
+// This handler is used for testing purposes, its not used in production
 func DeleteReports_handler(w http.ResponseWriter, r *http.Request) {
 	uc := usecases.ReportTmrUsecase{
 		CompanyToken: config.CompanyToken,

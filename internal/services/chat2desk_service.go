@@ -22,6 +22,7 @@ type ResponseOperators struct {
 	Data []Operator `json:"data"`
 }
 
+// Operator is the model for the operators
 type Operator struct {
 	ID            int    `json:"id"`
 	Email         string `json:"email"`
@@ -80,6 +81,7 @@ type ResponseDialog struct {
 	Data Dialog `json:"data"`
 }
 
+// Dialog is a struct that represents a dialog
 type Dialog struct {
 	ID          int         `json:"id"`
 	State       string      `json:"state"`
@@ -118,6 +120,8 @@ func (s *Chat2DeskService) GetAllDialogsOpenByOperatorID(operatorID int) []Dialo
 	return filteredDialogs
 }
 
+// verifyDatetimeDialogIsToday filters dialogs that are not from today
+// and returns only dialogs from today
 func (s *Chat2DeskService) GetDialogByID(dialogID int) Dialog {
 	path := fmt.Sprintf("%s/dialogs/%s", url, strconv.Itoa(dialogID))
 	resp, err := providers.MakeRquest(http.MethodGet, path, s.Token, nil)
@@ -140,6 +144,7 @@ type ResposeClients struct {
 	Data Client `json:"data"`
 }
 
+// Client represents a client from chat2desk
 type Client struct {
 	ID           int                      `json:"id"`
 	Name         string                   `json:"name"`

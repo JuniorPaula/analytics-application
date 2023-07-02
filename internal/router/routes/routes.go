@@ -6,6 +6,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// Route is the model for the routes
 type Route struct {
 	URI    string
 	Method string

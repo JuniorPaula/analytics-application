@@ -15,6 +15,7 @@ type ReportTmrUsecase struct {
 	CompanyToken string
 }
 
+// LoadTMR loads the TMR report
 func (u *ReportTmrUsecase) LoadTMR() {
 	// difine wait group
 	var wg sync.WaitGroup
@@ -47,6 +48,8 @@ func (u *ReportTmrUsecase) LoadTMR() {
 	u.CalculateDialogsHanlder(dialogs, operators)
 }
 
+// CalculateDialogsHanlder calculates the TMR for each dialog
+// and sends the report to the queue
 func (u *ReportTmrUsecase) CalculateDialogsHanlder(dialogs []services.Dialog, operators []services.Operator) {
 	// define wait group
 	var wg sync.WaitGroup
@@ -107,6 +110,8 @@ func (u *ReportTmrUsecase) CalculateDialogsHanlder(dialogs []services.Dialog, op
 	wg.Wait()
 }
 
+// getTMR returns time in seconds
+// between created time and now
 func getTMR(created string) int {
 	createdParseTime, err := time.Parse("2006-01-02T15:04:05 MST", created)
 	if err != nil {
