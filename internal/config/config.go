@@ -13,6 +13,7 @@ var (
 	ConnectStringDatabase = ""
 	Port                  = 0
 	CompanyToken          = ""
+	ApiURL                = ""
 	RabbitMQHost          = ""
 	RabbitMQPort          = ""
 	RabbitMQUser          = ""
@@ -44,6 +45,9 @@ func InitVariables() {
 
 	// Company Token
 	CompanyToken = os.Getenv("COMPANY_TOKEN")
+
+	// API URL
+	ApiURL = os.Getenv("API_URL")
 
 	// RabbitMQ Config
 	RabbitMQHost = os.Getenv("RABBITMQ_HOST")

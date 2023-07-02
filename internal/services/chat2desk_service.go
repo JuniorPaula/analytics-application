@@ -1,6 +1,7 @@
 package services
 
 import (
+	"c2d-reports/internal/config"
 	"c2d-reports/internal/providers"
 	"encoding/json"
 	"fmt"
@@ -11,8 +12,6 @@ import (
 	"strconv"
 	"time"
 )
-
-var url = "https://api.chat24.io/v1"
 
 type Chat2DeskService struct {
 	Token string
@@ -35,7 +34,7 @@ type Operator struct {
 
 // GetOperators returns all operators from company
 func (s *Chat2DeskService) GetOperators() []Operator {
-	path := fmt.Sprintf("%s/operators?limit=200", url)
+	path := fmt.Sprintf("%s/operators?limit=200", config.ApiURL)
 	resp, err := providers.MakeRquest(http.MethodGet, path, s.Token, nil)
 
 	if err != nil {
@@ -102,7 +101,7 @@ type LastMessage struct {
 // GetAllDialogsOpenByOperatorID returns all dialogs open by operator id
 func (s *Chat2DeskService) GetAllDialogsOpenByOperatorID(operatorID int) []Dialog {
 	queryString := "state=open&limit=200&order=desc"
-	path := fmt.Sprintf("%s/dialogs?operator_id=%s&%s", url, strconv.Itoa(operatorID), queryString)
+	path := fmt.Sprintf("%s/dialogs?operator_id=%s&%s", config.ApiURL, strconv.Itoa(operatorID), queryString)
 	resp, err := providers.MakeRquest(http.MethodGet, path, s.Token, nil)
 	if err != nil {
 		os.Exit(1)
@@ -123,7 +122,7 @@ func (s *Chat2DeskService) GetAllDialogsOpenByOperatorID(operatorID int) []Dialo
 // verifyDatetimeDialogIsToday filters dialogs that are not from today
 // and returns only dialogs from today
 func (s *Chat2DeskService) GetDialogByID(dialogID int) Dialog {
-	path := fmt.Sprintf("%s/dialogs/%s", url, strconv.Itoa(dialogID))
+	path := fmt.Sprintf("%s/dialogs/%s", config.ApiURL, strconv.Itoa(dialogID))
 	resp, err := providers.MakeRquest(http.MethodGet, path, s.Token, nil)
 	if err != nil {
 		os.Exit(1)
@@ -155,7 +154,7 @@ type Client struct {
 
 // GetClientByID returns client by id
 func (s *Chat2DeskService) GetClientByID(clientID int) Client {
-	path := fmt.Sprintf("%s/clients/%s", url, strconv.Itoa(clientID))
+	path := fmt.Sprintf("%s/clients/%s", config.ApiURL, strconv.Itoa(clientID))
 	resp, err := providers.MakeRquest(http.MethodGet, path, s.Token, nil)
 	if err != nil {
 		os.Exit(1)
