@@ -61,8 +61,6 @@ func (u *ReportTmrUsecase) CalculateDialogsHanlder(dialogs []services.Dialog, op
 	}
 	defer db.Close()
 
-	// repository := repositories.NewReportRepository(db)
-
 	var report repositories.Report
 
 	for _, d := range dialogs {
@@ -96,14 +94,6 @@ func (u *ReportTmrUsecase) CalculateDialogsHanlder(dialogs []services.Dialog, op
 						report.StatusTAG = statusTAG
 
 						rabbitmq.PusblisherOnReportsQueue(report)
-						// reportID, err := repository.CreateOrUpdate(report)
-						// if err != nil {
-						// 	fmt.Println("--- report upserted ---")
-						// 	continue
-						// }
-						// fmt.Printf("ID: [%d]; new report computed:\n", reportID)
-						fmt.Println("--------------------------")
-						fmt.Println("Report:", report)
 					}
 				}
 

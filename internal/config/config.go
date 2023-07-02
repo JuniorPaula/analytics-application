@@ -19,6 +19,8 @@ var (
 	RabbitMQPassword      = ""
 	RabbitMQVHost         = ""
 	AmqpURI               = ""
+	QueueName             = ""
+	ExchangeName          = ""
 )
 
 func InitVariables() {
@@ -50,6 +52,11 @@ func InitVariables() {
 	RabbitMQPassword = os.Getenv("RABBITMQ_PASSWORD")
 	RabbitMQVHost = os.Getenv("RABBITMQ_VHOST")
 
+	// Queue and Exchange Config
+	QueueName = os.Getenv("QUEUE_NAME")
+	ExchangeName = os.Getenv("EXCHANGE_NAME")
+
+	// AmqpURI Config
 	AmqpURI = fmt.Sprintf("amqp://%s:%s@%s:%s/%s",
 		RabbitMQUser,
 		RabbitMQPassword,

@@ -4,6 +4,7 @@ import (
 	"c2d-reports/internal/config"
 	"c2d-reports/internal/router"
 	"c2d-reports/pkg/jobs"
+	"c2d-reports/pkg/rabbitmq"
 	"fmt"
 	"log"
 	"net/http"
@@ -12,6 +13,9 @@ import (
 func main() {
 	// initialize .env variables
 	config.InitVariables()
+
+	// start the consumer on reports queue in a goroutine
+	go rabbitmq.ConsumerOnReportsQueue()
 
 	// print out the port
 	fmt.Println("[::] Starting server on the port: ", config.Port)
