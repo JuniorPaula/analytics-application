@@ -176,14 +176,14 @@ func ConsumerOnReportsQueue() {
 			}
 
 			// save report to database
-			reportID, err := repository.CreateOrUpdate(report)
+			rowsAffected, err := repository.CreateOrUpdate(report)
 			if err != nil {
-				fmt.Printf("ID: [%d]; report upserted:\n", reportID)
+				fmt.Printf("rows afeccted: [%d]; report upserted:\n", rowsAffected)
 
 				reports.Nack(false, false)
 				continue
 			}
-			fmt.Printf("ID: [%d]; new report computed:\n", reportID)
+			fmt.Printf("rows afeccted: [%d]; new report computed:\n", rowsAffected)
 
 			reports.Ack(false)
 		}
