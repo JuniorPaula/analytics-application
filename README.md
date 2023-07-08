@@ -1,5 +1,11 @@
 # Messaging Analytics Application
 
+![Go](https://img.shields.io/badge/go-%2300ADD8.svg?style=for-the-badge&logo=go&logoColor=white)
+![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
+![MySQL](https://img.shields.io/badge/mysql-%2300f.svg?style=for-the-badge&logo=mysql&logoColor=white)
+![Git](https://img.shields.io/badge/git-%23F05033.svg?style=for-the-badge&logo=git&logoColor=white)
+![RabbitMQ](https://img.shields.io/badge/Rabbitmq-FF6600?style=for-the-badge&logo=rabbitmq&logoColor=white)
+
 The Messaging Analytics Application is designed to calculate the average response time of operators using a specific CRM messaging platform in "`real-time`". Its main objective is to calculate the average response time for each operator in their ongoing chats and also determine the number of chats each operator is currently handling. The application is built using the **Go programming language** due to its ability to handle high data processing loads. It utilizes **MySQL** to store the metric information, **RabbitMQ** for program resilience and data integrity during calculations. The logic of the application consists of a job that runs every minute to check the chats of each operator, perform the necessary calculations, and send the data to a RabbitMQ queue. On the other end, a consumer retrieves this data and saves it to the database. Additionally, in a separate thread, another job checks if the operator has closed the chat, and if so, deletes the corresponding data from the database. It is **important** to note that, in order to run the program, besides the aforementioned dependencies, it is **crucial** to have the **access token** for the specific **CRM API** to collect chat information.
 
 ## Dependencies
