@@ -3,7 +3,7 @@ package entity
 import "errors"
 
 type Company struct {
-	ID           int    `json:"id,omitempty"`
+	ID           int64  `json:"id,omitempty"`
 	CompanyID    int    `json:"company_id,omitempty"`
 	CompanyToken string `json:"company_token,omitempty"`
 	CompanyName  string `json:"company_name,omitempty"`

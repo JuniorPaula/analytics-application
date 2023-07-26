@@ -18,6 +18,7 @@ type Route struct {
 func BootstrapRoutes(router *mux.Router) *mux.Router {
 	routes := reportsRoutes
 	routes = append(routes, homeRoutes)
+	routes = append(routes, companiesRoutes...)
 
 	for _, route := range routes {
 		router.HandleFunc(route.URI, route.Func).Methods(route.Method)
