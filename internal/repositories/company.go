@@ -35,3 +35,25 @@ func (c *CompanyRepository) CreateCompany(company entity.Company) (entity.Compan
 
 	return company, nil
 }
+
+func (c *CompanyRepository) GetAllCompanies() ([]entity.Company, error) {
+	rows, err := c.Db.Query("SELECT * FROM companies")
+	if err != nil {
+		return nil, err
+	}
+
+	var companies []entity.Company
+
+	for rows.Next() {
+		var company entity.Company
+
+		err = rows.Scan(&company.ID, &company.CompanyID, &company.CompanyToken, &company.CompanyName, &company.EmailAdmin)
+		if err != nil {
+			return nil, err
+		}
+
+		companies = append(companies, company)
+	}
+
+	return companies, nil
+}

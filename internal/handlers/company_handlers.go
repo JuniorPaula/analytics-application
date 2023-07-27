@@ -31,3 +31,13 @@ func CreateCompany_hanlder(w http.ResponseWriter, r *http.Request) {
 
 	utils.WriteJSON(w, http.StatusCreated, company)
 }
+
+func GetAllCompanies_handler(w http.ResponseWriter, r *http.Request) {
+	companies, err := companies.GetAllCompaniesUsecase()
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, companies)
+}

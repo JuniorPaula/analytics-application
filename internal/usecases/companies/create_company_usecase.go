@@ -24,3 +24,18 @@ func CreateCompanyUsecase(company entity.Company) (entity.Company, error) {
 
 	return company, nil
 }
+
+func GetAllCompaniesUsecase() ([]entity.Company, error) {
+	db, err := database.Connect()
+	if err != nil {
+		return nil, err
+	}
+
+	repository := repositories.NewCompanyRepository(db)
+	companies, err := repository.GetAllCompanies()
+	if err != nil {
+		return nil, err
+	}
+
+	return companies, nil
+}
