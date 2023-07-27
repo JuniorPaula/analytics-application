@@ -22,5 +22,5 @@ func CreateCompanyUsecase(company entity.Company) (entity.Company, error) {
 		return entity.Company{}, err
 	}
 
-	return entity.Company{}, nil
+	return company, nil
 }
