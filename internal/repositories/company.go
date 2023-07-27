@@ -37,7 +37,7 @@ func (c *CompanyRepository) CreateCompany(company entity.Company) (entity.Compan
 }
 
 func (c *CompanyRepository) GetAllCompanies() ([]entity.Company, error) {
-	rows, err := c.Db.Query("SELECT * FROM companies")
+	rows, err := c.Db.Query("SELECT id, company_id, company_token, company_name, email_admin FROM companies")
 	if err != nil {
 		return nil, err
 	}

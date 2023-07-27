@@ -11,4 +11,9 @@ var companiesRoutes = []Route{
 		Method: http.MethodPost,
 		Func:   handlers.CreateCompany_hanlder,
 	},
+	{
+		URI:    "/companies",
+		Method: http.MethodGet,
+		Func:   handlers.GetAllCompanies_handler,
+	},
 }
