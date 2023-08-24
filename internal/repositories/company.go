@@ -70,3 +70,19 @@ func (c *CompanyRepository) GetCompanyByID(ID int64) (entity.Company, error) {
 
 	return company, nil
 }
+
+func (c *CompanyRepository) UpdateCompany(ID int64, company entity.Company) (entity.Company, error) {
+	statment, err := c.Db.Prepare("UPDATE companies SET company_id = ?, company_token = ?, company_name = ?, email_admin = ? WHERE id = ?")
+	if err != nil {
+		return entity.Company{}, err
+	}
+
+	_, err = statment.Exec(company.CompanyID, company.CompanyToken, company.CompanyName, company.EmailAdmin, ID)
+	if err != nil {
+		return entity.Company{}, err
+	}
+
+	company.ID = ID
+
+	return company, nil
+}

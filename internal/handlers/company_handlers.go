@@ -61,3 +61,33 @@ func GetCompanyByID_handler(w http.ResponseWriter, r *http.Request) {
 
 	utils.WriteJSON(w, http.StatusOK, company)
 }
+
+func UpdateCompany_handler(w http.ResponseWriter, r *http.Request) {
+	paramsID := mux.Vars(r)["id"]
+	ID, err := strconv.ParseInt(paramsID, 10, 64)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	var company entity.Company
+	err = json.Unmarshal(body, &company)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	company, err = companies.UpdateCompanyUsecase(ID, company)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, company)
+}
