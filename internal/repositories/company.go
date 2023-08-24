@@ -86,3 +86,17 @@ func (c *CompanyRepository) UpdateCompany(ID int64, company entity.Company) (ent
 
 	return company, nil
 }
+
+func (c *CompanyRepository) DeleteCompany(ID int64) error {
+	statment, err := c.Db.Prepare("DELETE FROM companies WHERE id = ?")
+	if err != nil {
+		return err
+	}
+
+	_, err = statment.Exec(ID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

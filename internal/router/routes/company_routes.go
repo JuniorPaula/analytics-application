@@ -26,4 +26,9 @@ var companiesRoutes = []Route{
 		Method: http.MethodPut,
 		Func:   handlers.UpdateCompany_handler,
 	},
+	{
+		URI:    "/companies/{id}",
+		Method: http.MethodDelete,
+		Func:   handlers.DeleteCompany_handler,
+	},
 }

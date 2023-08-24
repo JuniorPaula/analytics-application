@@ -91,3 +91,18 @@ func UpdateCompanyUsecase(ID int64, company entity.Company) (entity.Company, err
 
 	return company, nil
 }
+
+func DeleteCompanyUsecase(ID int64) error {
+	db, err := database.Connect()
+	if err != nil {
+		return err
+	}
+
+	repository := repositories.NewCompanyRepository(db)
+	err = repository.DeleteCompany(ID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

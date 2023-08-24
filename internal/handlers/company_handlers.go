@@ -91,3 +91,20 @@ func UpdateCompany_handler(w http.ResponseWriter, r *http.Request) {
 
 	utils.WriteJSON(w, http.StatusOK, company)
 }
+
+func DeleteCompany_handler(w http.ResponseWriter, r *http.Request) {
+	paramsID := mux.Vars(r)["id"]
+	ID, err := strconv.ParseInt(paramsID, 10, 64)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	err = companies.DeleteCompanyUsecase(ID)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, nil)
+}
