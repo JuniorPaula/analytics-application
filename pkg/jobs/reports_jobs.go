@@ -2,6 +2,7 @@ package jobs
 
 import (
 	"c2d-reports/internal/config"
+	"c2d-reports/internal/usecases/companies"
 	usecases "c2d-reports/internal/usecases/reports"
 	"fmt"
 
@@ -37,16 +38,25 @@ func (s *Schedule) ScheduleCalculateReport() {
 
 // ScheduleDeleteReport schedules the job to delete the report
 func (s *Schedule) ScheduleDeleteReport() {
-	c := s.Cron
-	uc := usecases.ReportTmrUsecase{
-		CompanyToken: config.CompanyToken,
-	}
-	_, err := c.AddFunc("*/2 6-20 * * *", func() {
-		fmt.Println("start schedule to delete report")
-		uc.DeleteReport()
-	})
+	cron := s.Cron
+
+	companies, err := companies.GetAllCompaniesUsecase()
 	if err != nil {
 		panic(err)
 	}
-	c.Start()
+
+	for _, c := range companies {
+		uc := usecases.ReportTmrUsecase{
+			CompanyToken: c.CompanyToken,
+		}
+		_, err = cron.AddFunc("*/2 6-20 * * *", func() {
+			fmt.Println("start schedule to delete report")
+			uc.DeleteReport()
+		})
+		if err != nil {
+			panic(err)
+		}
+		cron.Start()
+	}
+
 }
