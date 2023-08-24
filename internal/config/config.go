@@ -12,7 +12,6 @@ import (
 var (
 	ConnectStringDatabase = ""
 	Port                  = 0
-	CompanyToken          = ""
 	ApiURL                = ""
 	RabbitMQHost          = ""
 	RabbitMQPort          = ""
@@ -42,9 +41,6 @@ func InitVariables() {
 		os.Getenv("DB_PASSWORD"),
 		os.Getenv("DB_DATABASE"),
 	)
-
-	// Company Token
-	CompanyToken = os.Getenv("COMPANY_TOKEN")
 
 	// API URL
 	ApiURL = os.Getenv("API_URL")
