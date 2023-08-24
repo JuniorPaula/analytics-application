@@ -24,3 +24,7 @@ func WriteError(w http.ResponseWriter, statusCode int, err error) {
 		Error: err.Error(),
 	})
 }
+
+func GetParam(r *http.Request, param string) string {
+	return r.URL.Query().Get(param)
+}

@@ -16,4 +16,9 @@ var companiesRoutes = []Route{
 		Method: http.MethodGet,
 		Func:   handlers.GetAllCompanies_handler,
 	},
+	{
+		URI:    "/companies/{id}",
+		Method: http.MethodGet,
+		Func:   handlers.GetCompanyByID_handler,
+	},
 }

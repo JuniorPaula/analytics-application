@@ -7,6 +7,9 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 func CreateCompany_hanlder(w http.ResponseWriter, r *http.Request) {
@@ -40,4 +43,21 @@ func GetAllCompanies_handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.WriteJSON(w, http.StatusOK, companies)
+}
+
+func GetCompanyByID_handler(w http.ResponseWriter, r *http.Request) {
+	paramsID := mux.Vars(r)["id"]
+	ID, err := strconv.ParseInt(paramsID, 10, 64)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	company, err := companies.GetCompanyByIDUsecase(ID)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, company)
 }

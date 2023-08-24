@@ -39,3 +39,18 @@ func GetAllCompaniesUsecase() ([]entity.Company, error) {
 
 	return companies, nil
 }
+
+func GetCompanyByIDUsecase(ID int64) (entity.Company, error) {
+	db, err := database.Connect()
+	if err != nil {
+		return entity.Company{}, err
+	}
+
+	repository := repositories.NewCompanyRepository(db)
+	company, err := repository.GetCompanyByID(ID)
+	if err != nil {
+		return entity.Company{}, err
+	}
+
+	return company, nil
+}
