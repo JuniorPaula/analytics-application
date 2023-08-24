@@ -1,7 +1,6 @@
 package jobs
 
 import (
-	"c2d-reports/internal/config"
 	"c2d-reports/internal/usecases/companies"
 	usecases "c2d-reports/internal/usecases/reports"
 	"fmt"
@@ -22,18 +21,32 @@ func NewSchedule() *Schedule {
 
 // ScheduleCalculateReport schedules the job to calculate the report
 func (s *Schedule) ScheduleCalculateReport() {
-	c := s.Cron
-	uc := usecases.ReportTmrUsecase{
-		CompanyToken: config.CompanyToken,
-	}
-	_, err := c.AddFunc("*/1 8-18 * * *", func() {
-		fmt.Println("start schedule to computation report chats")
-		uc.LoadTMR()
-	})
+	cron := s.Cron
+
+	companies, err := companies.GetAllCompaniesUsecase()
 	if err != nil {
 		panic(err)
 	}
-	c.Start()
+
+	for _, c := range companies {
+		// create a copy of the company
+		company := c
+
+		// create the usecase
+		uc := usecases.ReportTmrUsecase{
+			CompanyToken: company.CompanyToken,
+		}
+		// add the job to the cron
+		_, err = cron.AddFunc("*/1 8-18 * * *", func() {
+			fmt.Printf("start schedule to computation report chats from company: [%s]\n", company.CompanyName)
+			uc.LoadTMR()
+		})
+		if err != nil {
+			panic(err)
+		}
+	}
+	cron.Start()
+
 }
 
 // ScheduleDeleteReport schedules the job to delete the report
@@ -46,11 +59,17 @@ func (s *Schedule) ScheduleDeleteReport() {
 	}
 
 	for _, c := range companies {
+		// create a copy of the company
+		company := c
+
+		// create the usecase
 		uc := usecases.ReportTmrUsecase{
-			CompanyToken: c.CompanyToken,
+			CompanyToken: company.CompanyToken,
 		}
+
+		// add the job to the cron
 		_, err = cron.AddFunc("*/2 6-20 * * *", func() {
-			fmt.Println("start schedule to delete report")
+			fmt.Printf("start schedule to delete report from company: [%s]\n", company.CompanyName)
 			uc.DeleteReport()
 		})
 		if err != nil {
