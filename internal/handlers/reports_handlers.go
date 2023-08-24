@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"c2d-reports/internal/config"
-	"c2d-reports/internal/usecases"
+	usecases "c2d-reports/internal/usecases/reports"
 	"net/http"
 )
 
@@ -25,6 +25,7 @@ func DeleteReports_handler(w http.ResponseWriter, r *http.Request) {
 	uc := usecases.ReportTmrUsecase{
 		CompanyToken: config.CompanyToken,
 	}
+
 	uc.DeleteReport()
 
 	defer r.Body.Close()

@@ -2,7 +2,7 @@ package jobs
 
 import (
 	"c2d-reports/internal/config"
-	"c2d-reports/internal/usecases"
+	usecases "c2d-reports/internal/usecases/reports"
 	"fmt"
 
 	"github.com/robfig/cron/v3"
